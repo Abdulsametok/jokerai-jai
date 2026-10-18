@@ -10,9 +10,85 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_010100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_020300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "activities", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "task_id"
+    t.bigint "actor_id"
+    t.string "action", null: false
+    t.jsonb "data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_activities_on_actor_id"
+    t.index ["project_id"], name: "index_activities_on_project_id"
+    t.index ["task_id"], name: "index_activities_on_task_id"
+  end
+
+  create_table "agent_runs", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "goal_id"
+    t.bigint "task_id"
+    t.string "kind", null: false
+    t.string "model", null: false
+    t.integer "tokens_in", default: 0, null: false
+    t.integer "tokens_out", default: 0, null: false
+    t.decimal "cost_usd", precision: 12, scale: 6, default: "0.0", null: false
+    t.integer "duration_ms", default: 0, null: false
+    t.string "status", default: "ok", null: false
+    t.text "error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["goal_id"], name: "index_agent_runs_on_goal_id"
+    t.index ["task_id"], name: "index_agent_runs_on_task_id"
+    t.index ["user_id"], name: "index_agent_runs_on_user_id"
+  end
+
+  create_table "artifacts", force: :cascade do |t|
+    t.bigint "task_id", null: false
+    t.bigint "agent_run_id"
+    t.bigint "reviewed_by_id"
+    t.integer "version", default: 1, null: false
+    t.string "kind", null: false
+    t.string "title", null: false
+    t.text "content", null: false
+    t.string "status", default: "pending_review", null: false
+    t.text "feedback"
+    t.datetime "reviewed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_run_id"], name: "index_artifacts_on_agent_run_id"
+    t.index ["reviewed_by_id"], name: "index_artifacts_on_reviewed_by_id"
+    t.index ["task_id", "version"], name: "index_artifacts_on_task_id_and_version", unique: true
+    t.index ["task_id"], name: "index_artifacts_on_task_id"
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.bigint "task_id", null: false
+    t.bigint "author_id"
+    t.text "body", null: false
+    t.boolean "by_agent", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_comments_on_author_id"
+    t.index ["task_id"], name: "index_comments_on_task_id"
+  end
+
+  create_table "goals", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "project_id"
+    t.string "title", null: false
+    t.text "context"
+    t.date "deadline"
+    t.string "status", default: "planning", null: false
+    t.jsonb "plan", default: {}, null: false
+    t.text "error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_goals_on_project_id"
+    t.index ["user_id"], name: "index_goals_on_user_id"
+  end
 
   create_table "job_checks", force: :cascade do |t|
     t.datetime "enqueued_at", null: false
@@ -20,6 +96,68 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_010100) do
     t.string "performed_by"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "actor_id"
+    t.bigint "task_id"
+    t.bigint "project_id"
+    t.string "kind", null: false
+    t.string "message", null: false
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["project_id"], name: "index_notifications_on_project_id"
+    t.index ["task_id"], name: "index_notifications_on_task_id"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "project_memberships", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "user_id", null: false
+    t.string "role", default: "member", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "user_id"], name: "index_project_memberships_on_project_id_and_user_id", unique: true
+    t.index ["project_id"], name: "index_project_memberships_on_project_id"
+    t.index ["user_id"], name: "index_project_memberships_on_user_id"
+  end
+
+  create_table "projects", force: :cascade do |t|
+    t.bigint "owner_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "color", default: "#65a30d", null: false
+    t.date "due_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id"], name: "index_projects_on_owner_id"
+  end
+
+  create_table "sections", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "name", null: false
+    t.string "kind", default: "custom", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_sections_on_project_id"
+  end
+
+  create_table "sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "last_seen_at"
+    t.string "user_agent"
+    t.string "ip_address"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token_digest"], name: "index_sessions_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
   create_table "solid_queue_batch_executions", force: :cascade do |t|
@@ -172,6 +310,77 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_010100) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "tasks", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "section_id"
+    t.bigint "parent_id"
+    t.bigint "depends_on_id"
+    t.bigint "assignee_id"
+    t.bigint "creator_id"
+    t.string "title", null: false
+    t.text "description"
+    t.date "due_on"
+    t.string "priority", default: "medium", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "completed_at"
+    t.boolean "agent_executable", default: false, null: false
+    t.string "agent_kind"
+    t.string "agent_state", default: "idle", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignee_id", "completed_at"], name: "index_tasks_on_assignee_id_and_completed_at"
+    t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
+    t.index ["creator_id"], name: "index_tasks_on_creator_id"
+    t.index ["depends_on_id"], name: "index_tasks_on_depends_on_id"
+    t.index ["parent_id"], name: "index_tasks_on_parent_id"
+    t.index ["project_id"], name: "index_tasks_on_project_id"
+    t.index ["section_id", "position"], name: "index_tasks_on_section_id_and_position"
+    t.index ["section_id"], name: "index_tasks_on_section_id"
+  end
+
+  create_table "teams", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_teams_on_name", unique: true
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.bigint "team_id"
+    t.string "name", null: false
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.string "title"
+    t.string "skills", default: [], null: false, array: true
+    t.string "avatar_color", default: "#65a30d", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["team_id"], name: "index_users_on_team_id"
+  end
+
+  add_foreign_key "activities", "projects", on_delete: :cascade
+  add_foreign_key "activities", "tasks", on_delete: :cascade
+  add_foreign_key "activities", "users", column: "actor_id", on_delete: :nullify
+  add_foreign_key "agent_runs", "goals", on_delete: :nullify
+  add_foreign_key "agent_runs", "tasks", on_delete: :nullify
+  add_foreign_key "agent_runs", "users", on_delete: :nullify
+  add_foreign_key "artifacts", "agent_runs", on_delete: :nullify
+  add_foreign_key "artifacts", "tasks", on_delete: :cascade
+  add_foreign_key "artifacts", "users", column: "reviewed_by_id", on_delete: :nullify
+  add_foreign_key "comments", "tasks", on_delete: :cascade
+  add_foreign_key "comments", "users", column: "author_id", on_delete: :nullify
+  add_foreign_key "goals", "projects", on_delete: :nullify
+  add_foreign_key "goals", "users", on_delete: :cascade
+  add_foreign_key "notifications", "projects", on_delete: :cascade
+  add_foreign_key "notifications", "tasks", on_delete: :cascade
+  add_foreign_key "notifications", "users", column: "actor_id", on_delete: :nullify
+  add_foreign_key "notifications", "users", on_delete: :cascade
+  add_foreign_key "project_memberships", "projects", on_delete: :cascade
+  add_foreign_key "project_memberships", "users", on_delete: :cascade
+  add_foreign_key "projects", "users", column: "owner_id"
+  add_foreign_key "sections", "projects", on_delete: :cascade
+  add_foreign_key "sessions", "users", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -180,4 +389,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_010100) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "tasks", "projects", on_delete: :cascade
+  add_foreign_key "tasks", "sections", on_delete: :nullify
+  add_foreign_key "tasks", "tasks", column: "depends_on_id", on_delete: :nullify
+  add_foreign_key "tasks", "tasks", column: "parent_id", on_delete: :cascade
+  add_foreign_key "tasks", "users", column: "assignee_id", on_delete: :nullify
+  add_foreign_key "tasks", "users", column: "creator_id", on_delete: :nullify
+  add_foreign_key "users", "teams"
 end
