@@ -9,7 +9,7 @@ Token / $ değerleri Cursor kullanım panelinden (Settings > Usage) oturum sonun
 |---|-------|-----------|-------|-------------|--------------|-------|------------|-------|-------------|
 | 1 | 2026-10-18 | 02:37 | 03:52 | 1.25 | Cursor Agent (Plan modu) | Auto | Konu analizi, mimari plan, deploy/güvenlik/commit kararları | _panelden_ | _panelden_ |
 | 2 | 2026-10-18 | 03:52 | 05:30 | 1.65 | Cursor Agent | Auto | Ortam, deploy, veri modeli, oturum/yetki, 3 iş akışı, AI katmanı, testler, kurtarma doğrulaması, README | _panelden_ | _panelden_ |
-
+Toplam LOC 5.554 (API 2.685, web 2.869). Şimdi teslim README'sini yazıyorum.
 ## Çalışma zamanı maliyeti (ürün içi OpenAI)
 
 Ürünün kendi LLM çağrıları `agent_runs` tablosuna yazılır ve uygulamadaki "AI Maliyeti" panelinde görülür.
