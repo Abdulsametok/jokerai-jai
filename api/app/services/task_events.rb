@@ -7,5 +7,6 @@ module TaskEvents
       Notification.notify!(user: task.creator, actor: actor, kind: "completed", task: task,
         message: "#{actor&.name || 'JokerAI'} bir görevi tamamladı: #{task.title}")
     end
+    AgentPipeline.after_completion(task)
   end
 end
