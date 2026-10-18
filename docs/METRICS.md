@@ -17,7 +17,9 @@ Demo öncesi toplam buraya kopyalanır.
 
 | Tarih | Çağrı sayısı | Giriş token | Çıkış token | Maliyet ($) | Model |
 |-------|--------------|-------------|-------------|-------------|-------|
-| | | | | | |
+| 2026-10-18 | 12 (1 hata, anahtar tanımlanmadan önce) | 9.572 | 5.865 | 0,004955 | gpt-4o-mini |
+
+Örnek uçtan uca hedef (canlı, 2026-10-18): 9 çağrı (1 plan, 4 yürütme, 1 revizyon, 3 brif), 8.166 / 4.516 token, $0,003935, 94 sn, 7/7 görev tamamlandı.
 
 ## Altyapı notları
 
@@ -28,7 +30,7 @@ Demo öncesi toplam buraya kopyalanır.
 | İlk canlı deploy | 2026-10-18 04:57 (Gün 1) |
 | Canlı PingJob doğrulaması | 2026-10-18 05:00, 391 ms, Render içi Puma + Solid Queue |
 | Canlı demo reset + kurtarma doğrulaması | 2026-10-18 05:23, 6 kullanıcı / 3 proje / 20 görev (bkz. DEPLOY.md) |
-| Ürün içi OpenAI anahtarı | Render'da henüz tanımlı değil; tanımlanınca canlı AI akışı doğrulanacak |
+| Ürün içi OpenAI anahtarı | 2026-10-18 Render'da tanımlandı; canlı uçtan uca ajan akışı doğrulandı |
 | Frontend URL | https://jokerai.abdulsametok.com |
 | API URL | https://api-jokerai.abdulsametok.com |
 
@@ -36,9 +38,9 @@ Demo öncesi toplam buraya kopyalanır.
 
 | Metrik | Değer |
 |--------|-------|
-| Toplam token maliyeti ($) | Coding agent: Cursor panelinden doldurulacak. Ürün içi: canlı "AI maliyeti" ekranından |
-| Toplam çalışma süresi (saat) | 2.9 |
-| Satır sayısı (LOC) | 5.554 (boş satırsız; git'te izlenen .rb/.rake/.ts/.tsx/.css/.yml/.erb/.mjs, schema.rb ve bin/ hariç) |
-| Kullanılan model(ler) | Geliştirme: Cursor Auto. Ürün içi: OpenAI gpt-4o-mini |
+| Toplam token maliyeti ($) | Geliştirme: ~$39,45 (Grok API liste değeri, 35.813.015 token: 35,56M girdi / 249K çıktı). Canlı ürün içi: $0,004955 |
+| Toplam çalışma süresi (saat) | 2,9 |
+| Satır sayısı (LOC) | 5.532 (boş satırsız; git'te izlenen .rb/.rake/.ts/.tsx/.css/.yml/.erb/.mjs, schema.rb ve bin/ hariç) |
+| Kullanılan model(ler) | Geliştirme: Cursor Auto (Grok). Ürün içi: OpenAI gpt-4o-mini |
 | Coding agent(lar) | Cursor Agent |
 | Agent oturum sayısı | 2 |

@@ -11,17 +11,24 @@
 
 Demo kullanıcıları: **Deniz Arslan** (operasyon müdürü, projelerde yönetici ve ajan çıktılarını onaylayan kişi), **Mert Kaya** (veri analisti), **Ece Yıldız** (vardiya planlama uzmanı). Tüm veri sentetiktir; hayali bir lojistik şirketi olan "Northwind Lojistik" için üretilmiştir.
 
-## Firma, SaaS ve kanıt
+## Seçilen firma, SaaS ve kanıt
 
 | | |
 |---|---|
-| Fortune 500 firması | FedEx |
-| Kullandığı SaaS | Asana (iş ve proje yönetimi) |
-| Kanıt | https://asana.com/case-study/fedex |
+| Seçilen Fortune 500 firması | **FedEx** |
+| Firmanın kullandığı SaaS | **Asana** (iş ve proje yönetimi) |
+| Kullanım kanıtı | [asana.com/case-study/fedex](https://asana.com/case-study/fedex) |
 
 **Klonlanan ana değer akışı:** ekipler arası işi tek bir yerde planlamak, sahiplik ve son tarihlerle takip etmek, ilerlemeyi görünür kılmak ve iş birliğini görev bağlamında yürütmek. JokerAI bu akışın işlevini kendi markası, kendi arayüzü ve kendi koduyla yeniden kurar. Rakip ürünün adı, logosu, renkleri ve giriş ekranı kullanılmaz, hiçbir içerik scrape edilmez.
 
-## Uçtan uca çalışan iş akışları
+## Klonlanan iş akışları
+
+| # | İş akışı | Kapsam |
+|---|----------|--------|
+| 1 | Proje ve görev yönetimi (liste) | Proje oluşturma, bölümler, görev ekleme/düzenleme/silme, sorumlu, son tarih, öncelik, alt görev, bağımlılık, tamamlama, ilerleme |
+| 2 | Kanban pano | Sürükle-bırak ile bölüm ve sıra değiştirme, kalıcı sıralama, "Tamamlandı" sütununda otomatik tamamlama |
+| 3 | İş birliği | Yorum, `@bahsetme`, aktivite akışı, Görevlerim ekranı, gelen kutusu bildirimleri |
+| 4 | Hedeften projeye (AI) | Hedef → plan → otomatik yürütme → insan onayı → sonraki adım (ayrıntı aşağıda) |
 
 ### 1. Proje ve görev yönetimi (liste görünümü)
 Proje oluştur, bölümlere (Yapılacak, Devam ediyor, İncelemede, Tamamlandı) görev ekle. Görevlere sorumlu, son tarih, öncelik, alt görev ve bağımlılık ver; satır içinden tamamla veya çekmecede düzenle. Proje ilerlemesi otomatik hesaplanır.
@@ -40,13 +47,22 @@ Klasik iş yönetimi araçları işi listeler, yürütmeyi insana bırakır. Jok
 2. **İnsan planı düzenler.** Plan önizlemesinde görev çıkarılır, sorumlu değiştirilir ya da ek bağlamla yeniden planlatılır. "Onayla" ile proje, görevler, alt görevler ve bağımlılıklar oluşturulur.
 3. **Ajan hemen yürütür.** Bağımlılığı karşılanmış ajan görevleri arka planda (Solid Queue) çalışır. Ajan bitmiş bir iş teslim eder (analiz raporu, uygulama planı, paydaş duyurusu, entegrasyon spesifikasyonu, kontrol listesi), görevi "İncelemede"ye taşır ve proje yöneticilerine onay isteği gönderir.
 4. **Onay veya geri bildirimle ret.** Yönetici çıktıyı okur. Onaylarsa görev tamamlanır. Reddederse yazdığı geri bildirimle ajan yeni bir sürüm üretir; sürüm geçmişi saklanır.
-5. **Sonraki .** Bir görev tamamlandığında ona bağlı sonraki adım hazır hale gelir. Sonraki görev ajan göreviyse ajan onu kendiliğinden başlatır ve önceki onaylı çıktıları bağlam olarak kullanır. İnsan göreviyse ajan sorumluya başlangıç brifi yazar ve bildirim gönderir.
+5. **Sonraki adım.** Bir görev tamamlandığında ona bağlı sonraki adım hazır hale gelir. Sonraki görev ajan göreviyse ajan onu kendiliğinden başlatır ve önceki onaylı çıktıları bağlam olarak kullanır. İnsan göreviyse ajan sorumluya başlangıç brifi yazar ve bildirim gönderir.
 6. **Maliyet paneli.** Her LLM çağrısı token, maliyet ve süre ile sunucuda `agent_runs` tablosuna yazılır. Arayüzdeki "AI maliyeti" ekranı yalnızca maliyeti gösterir: toplam maliyet, onaylanan çıktı başına maliyet, iş türüne göre maliyet ve son işlemler. Model adı ve token ayrıntısı arayüze çıkmaz.
 
-**İş akışını nasıl değiştiriyor:** Görevlerim ekranında en üstte "JokerAI işi bitirdi, sadece onayın gerekiyor" bölümü yer alır. Yöneticinin işi görev yazmak ve takip etmek yerine hazır çıktıyı kontrol etmeye dönüşür.
+### Kullanıcıya hangi adımı kazandırıyor?
+
+| Adım | Klasik iş yönetimi aracında | JokerAI'da |
+|------|-----------------------------|------------|
+| Planlama | Yönetici hedefi elle görevlere böler, sırayı ve sorumluları belirler | Ajan planı önerir; yönetici yalnızca düzenleyip onaylar |
+| Atama | Kimin müsait ve yetkin olduğu tek tek düşünülür | Yetenek ve açık iş yüküne göre öneri gelir |
+| İlk taslak | Analiz, duyuru metni, uygulama planı, kontrol listesi bir çalışana yazdırılır | Ajan bitmiş taslağı teslim eder; insan okur ve onaylar ya da düzeltme ister |
+| Devir | Önceki iş bitince sıradaki kişi kendisi fark edip bağlamı toplar | Ajan sıradaki görevi kendiliğinden başlatır ya da sorumluya brif ve bildirim gönderir |
+
+Kazanılan adım: **görevi yazma, ilk taslağı üretme ve devri takip etme** işleri insandan çıkar. Görevlerim ekranında en üstte "JokerAI işi bitirdi, sadece onayın gerekiyor" bölümü yer alır. Yöneticinin işi takip etmekten hazır çıktıyı kontrol etmeye dönüşür. Canlı ölçümde 7 görevli bir proje, plan dahil 94 saniyede yürütülüp onaya sunuldu (aşağıdaki metrik tablosu).
 
 ### AI teknik ayrıntıları
-- LLM çağrıları ve API anahtarı yalnızca Rails'tedir 
+- LLM çağrıları ve API anahtarı yalnızca Rails'tedir; tarayıcıya anahtar gitmez.
 - Geliştirme ve testte anahtar yoksa deterministik bir çevrimdışı istemci kullanılır. Production'da anahtar yoksa çağrı hata verir; sahte çıktı üretilmez.
 - LLM kesintisinde ajan görevi "başarısız" durumuna geçer ve tekrar çalıştırılabilir. Sonraki adımın sorumlusu brif üretilemese de bilgilendirilir.
 
@@ -111,19 +127,36 @@ Testler kimlik doğrulama, cookie bayrakları, origin kontrolü, üyelik bazlı 
 
 Render (API + Postgres, `render.yaml` Blueprint), Vercel (frontend), Cloudflare DNS. Adımlar, canlı doğrulama komutları, demo reset, `pg_dump`/`pg_restore` ve doğrulanmış kurtarma tablosu [docs/DEPLOY.md](docs/DEPLOY.md) dosyasındadır.
 
-## Metrikler
+## Metrik tablosu
 
 Ayrıntılı oturum kaydı: [docs/METRICS.md](docs/METRICS.md).
 
 | Metrik | Değer |
 |--------|-------|
-| Token maliyeti, coding agent ($) | Cursor kullanım panelinden: _doldurulacak_ |
-| Token maliyeti, ürün içi OpenAI ($) | Canlı "AI maliyeti" ekranından: _demo sonrası doldurulacak_ |
-| Toplam çalışma süresi (saat) | 2.9 (oturum 1: 1.25, oturum 2: 1.65; 02:37-05:30) |
-| Satır sayısı (LOC, boş satırsız) | 5.554 (API uygulama 1.709, API config 375, migration+seed 314, API test 287, web 2.869) |
-| Modeller | Geliştirme: Cursor Auto. Ürün içi: OpenAI gpt-4o-mini |
-| Coding agent | Cursor Agent |
+| Toplam token maliyeti, geliştirme süreci ($) | **~$39,45** (Grok API liste değeri; Cursor aboneliği kapsamında kullanıldı) |
+| Toplam token, geliştirme süreci | 35.813.015 token (35,56M girdi / 249K çıktı) |
+| Toplam token maliyeti, canlı ürün içi AI ($) | **$0,004955** (2026-10-18 itibarıyla canlıdaki tüm ajan çağrıları, 12 çağrı) |
+| Toplam çalışma süresi (saat) | 2,9 saat |
+| Satır sayısı (LOC) | 5.532 (boş satırsız; API uygulama 1.709, API config 375, migration+seed 314, API test 287, web 2.847) |
+| Kullanılan model(ler) | Geliştirme: Cursor Auto (Grok). Ürün içi ajan: OpenAI gpt-4o-mini |
+| Coding agent(lar) | Cursor Agent |
 | Agent oturum sayısı | 2 |
+
+### Örnek canlı işleyiş maliyeti
+
+Canlı ortamda (https://jokerai.abdulsametok.com) bir hedef baştan sona yürütüldü ve maliyet `agent_runs` kaydından, işlem öncesi ve sonrası farkıyla ölçüldü (2026-10-18).
+
+Hedef: *"Kurumsal müşterilere yeni iade sürecini duyuran bir lansman hazırla"*
+
+| Adım | LLM çağrısı | Açıklama |
+|------|-------------|----------|
+| Hedef planlama | 1 | 7 görevlik plan, sorumlu önerileri ve riskler (14 sn) |
+| Görev yürütme | 4 | Ajan görevlerinin bitmiş çıktıları |
+| Revizyon | 1 | Geri bildirimle reddedilen çıktının v2'si |
+| Sonraki adım brifi | 3 | İnsan görevlerine başlangıç notu |
+| **Toplam** | **9** | **8.166 girdi / 4.516 çıktı token, $0,003935, 94 saniye, 7/7 görev tamamlandı** |
+
+Yani bir hedefin plandan teslime kadar yürütülmesi yaklaşık **0,4 sent** tutuyor. Aynı fiyatla 1 dolara yaklaşık 250 hedef yürütülebilir.
 
 ## Bilinen sınırlamalar
 
