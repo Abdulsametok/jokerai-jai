@@ -1,5 +1,6 @@
 module Api
   class HealthController < ApplicationController
+    allow_unauthenticated_access
     before_action :require_admin_token, only: %i[create_job_check show_job_check]
 
     def show
@@ -47,11 +48,7 @@ module Api
     end
 
     def require_admin_token
-      expected = ENV["ADMIN_TOKEN"].to_s
-      given = request.headers["X-Admin-Token"].to_s
-      return if expected.present? && ActiveSupport::SecurityUtils.secure_compare(expected, given)
-
-      head :unauthorized
+      head :unauthorized unless admin_token_valid?
     end
   end
 end

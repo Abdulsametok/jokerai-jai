@@ -4,12 +4,36 @@ require "rails/test_help"
 
 module ActiveSupport
   class TestCase
-    # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors, with: :threads)
-
-    # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-    fixtures :all
-
-    # Add more helper methods to be used by all tests here...
+    parallelize(workers: 1)
   end
+end
+
+module ApiTestHelpers
+  ORIGIN = "http://localhost:3000".freeze
+
+  def seed_demo
+    DemoSeed.run!
+  end
+
+  def user(key)
+    User.find_by!(email: "#{key}@northwind.test")
+  end
+
+  def sign_in(key)
+    post "/api/session", params: { email: "#{key}@northwind.test", password: DemoSeed::PASSWORD }, as: :json,
+      headers: { "Origin" => ORIGIN }
+    assert_response :created
+  end
+
+  def json_headers
+    { "Origin" => ORIGIN }
+  end
+
+  def body
+    response.parsed_body
+  end
+end
+
+class ActionDispatch::IntegrationTest
+  include ApiTestHelpers
 end
