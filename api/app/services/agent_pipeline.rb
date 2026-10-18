@@ -69,13 +69,29 @@ module AgentPipeline
         Activity.log!(project: next_task.project, task: next_task, action: "next_step_prepared", data: { from: task.title })
         enqueue_execution(next_task)
       else
-        message = NextStepBrief.new(task, next_task).call
-        next_task.comments.create!(by_agent: true, body: message)
-        Activity.log!(project: next_task.project, task: next_task, action: "next_step_prepared", data: { from: task.title })
-        Notification.notify!(user: next_task.assignee, kind: "next_step", task: next_task,
-          message: "'#{task.title}' tamamlandı. JokerAI '#{next_task.title}' için başlangıç notunu hazırladı.")
+        prepare_human_step!(task, next_task)
       end
     end
+  end
+
+  # A failed brief must not block the handoff: the assignee is still told the
+  # dependency is done.
+  def prepare_human_step!(task, next_task)
+    message =
+      begin
+        NextStepBrief.new(task, next_task).call
+      rescue StandardError => e
+        Rails.logger.error("[AgentPipeline] brief for task #{next_task.id} failed: #{e.class} #{e.message}")
+        nil
+      end
+
+    if message.present?
+      next_task.comments.create!(by_agent: true, body: message)
+      Activity.log!(project: next_task.project, task: next_task, action: "next_step_prepared", data: { from: task.title })
+    end
+    Notification.notify!(user: next_task.assignee, kind: "next_step", task: next_task,
+      message: message.present? ? "'#{task.title}' tamamlandı. JokerAI '#{next_task.title}' için başlangıç notunu hazırladı." :
+                                  "'#{task.title}' tamamlandı; '#{next_task.title}' artık başlayabilir.")
   end
 
   def notify_reviewers(task)

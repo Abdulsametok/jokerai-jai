@@ -76,6 +76,28 @@ class AgentPipelineTest < ActionDispatch::IntegrationTest
     assert Notification.where(task: human, kind: "next_step").exists? if human.assignee && human.assignee != user(:deniz)
   end
 
+  test "llm outage still hands the next step to its assignee" do
+    sign_in :deniz
+    project = plan_and_accept_goal
+    draft = project.tasks.find_by!(title: "Uygulama planı taslağı")
+    human = project.tasks.find_by!(title: "Saha hazırlığı ve ekip ataması")
+    draft.update!(agent_executable: false, agent_kind: nil)
+    human.update!(assignee: user(:mert))
+
+    failing = Object.new
+    def failing.model = "gpt-4o-mini"
+    def failing.complete(**) = raise(Llm::Error, "OpenAI erişilemedi")
+    Llm.client = failing
+
+    perform_enqueued_jobs do
+      patch "/api/tasks/#{draft.id}", params: { task: { completed: true } }, as: :json, headers: json_headers
+    end
+    assert_response :success
+    refute human.comments.where(by_agent: true).exists?
+    assert Notification.where(task: human, user: user(:mert), kind: "next_step").exists?
+    assert AgentRun.where(kind: "next_step", status: "error").exists?
+  end
+
   test "rejecting with feedback produces a new version" do
     sign_in :deniz
     project = plan_and_accept_goal
