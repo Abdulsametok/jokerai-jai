@@ -66,6 +66,24 @@ Yedek (repo dışına):
 docker run --rm -v "${HOME}\jokerai-backups:/backup" postgres:17-alpine pg_dump "<EXTERNAL_DATABASE_URL>" -Fc -f /backup/jokerai-$(Get-Date -Format yyyyMMdd-HHmm).dump
 ```
 
+Geri yükleme (yeni bir Render DB'ye ya da yerel konteynere):
+
+```powershell
+docker run --rm -v "${HOME}\jokerai-backups:/backup" postgres:17-alpine pg_restore --no-owner --clean --if-exists -d "<HEDEF_DATABASE_URL>" /backup/<dosya>.dump
+```
+
+Render ücretsiz DB 30 gün sonra silinir (bu kurulumda ~2026-11-17). DB silinirse: yeni DB oluştur, servisin `DATABASE_URL`'ini güncelle, deploy et. Build komutundaki `db:prepare` şemayı kurar, ardından (b) yolu ile seed'i yükle.
+
+### Kurtarma doğrulaması (2026-10-18)
+
+| Adım | Ortam | Sonuç |
+|------|-------|-------|
+| Boş DB'de `db:prepare` (create + şema + seed) | yerel Postgres 17 | 6 kullanıcı, 3 proje, 20 görev |
+| `db:seed` ikinci kez | yerel | sayılar değişmedi (idempotent) |
+| `pg_dump -Fc` sonra yeni DB'ye `pg_restore` | yerel | aynı sayılar |
+| `demo:reset` | yerel | aynı sayılar |
+| `POST /api/admin/demo_reset` | canlı Render | `{"users":6,"projects":3,"tasks":20}`, ardından demo girişi 201 |
+
 ## 6. Uyku önleme
 
 cron-job.org (ücretsiz) üzerinde `https://api-jokerai.abdulsametok.com/api/health` adresine 10 dakikada bir GET. Sunumdan 10 dk önce siteyi elle aç.
