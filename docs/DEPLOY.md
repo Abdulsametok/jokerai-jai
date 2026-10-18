@@ -17,7 +17,7 @@
 ## 2. Vercel (frontend)
 
 1. Vercel > **Add New > Project** > aynı repo. **Root Directory: `web`**.
-2. Environment Variables: `  = https://api-jokerai.abdulsametok.com`
+2. Environment Variables: `NEXT_PUBLIC_API_URL = https://api-jokerai.abdulsametok.com`
 3. Deploy > Settings > Domains: `jokerai.abdulsametok.com` ekle.
 
 ## 3. Cloudflare DNS
