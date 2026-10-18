@@ -40,15 +40,13 @@ Klasik iş yönetimi araçları işi listeler, yürütmeyi insana bırakır. Jok
 2. **İnsan planı düzenler.** Plan önizlemesinde görev çıkarılır, sorumlu değiştirilir ya da ek bağlamla yeniden planlatılır. "Onayla" ile proje, görevler, alt görevler ve bağımlılıklar oluşturulur.
 3. **Ajan hemen yürütür.** Bağımlılığı karşılanmış ajan görevleri arka planda (Solid Queue) çalışır. Ajan bitmiş bir iş teslim eder (analiz raporu, uygulama planı, paydaş duyurusu, entegrasyon spesifikasyonu, kontrol listesi), görevi "İncelemede"ye taşır ve proje yöneticilerine onay isteği gönderir.
 4. **Onay veya geri bildirimle ret.** Yönetici çıktıyı okur. Onaylarsa görev tamamlanır. Reddederse yazdığı geri bildirimle ajan yeni bir sürüm üretir; sürüm geçmişi saklanır.
-5. **Sonraki adım pası.** Bir görev tamamlandığında ona bağlı sonraki adım hazır hale gelir. Sonraki görev ajan göreviyse ajan onu kendiliğinden başlatır ve önceki onaylı çıktıları bağlam olarak kullanır. İnsan göreviyse ajan sorumluya başlangıç brifi yazar ve bildirim gönderir.
+5. **Sonraki .** Bir görev tamamlandığında ona bağlı sonraki adım hazır hale gelir. Sonraki görev ajan göreviyse ajan onu kendiliğinden başlatır ve önceki onaylı çıktıları bağlam olarak kullanır. İnsan göreviyse ajan sorumluya başlangıç brifi yazar ve bildirim gönderir.
 6. **Maliyet paneli.** Her LLM çağrısı token, maliyet ve süre ile sunucuda `agent_runs` tablosuna yazılır. Arayüzdeki "AI maliyeti" ekranı yalnızca maliyeti gösterir: toplam maliyet, onaylanan çıktı başına maliyet, iş türüne göre maliyet ve son işlemler. Model adı ve token ayrıntısı arayüze çıkmaz.
 
 **İş akışını nasıl değiştiriyor:** Görevlerim ekranında en üstte "JokerAI işi bitirdi, sadece onayın gerekiyor" bölümü yer alır. Yöneticinin işi görev yazmak ve takip etmek yerine hazır çıktıyı kontrol etmeye dönüşür.
 
 ### AI teknik ayrıntıları
-- LLM çağrıları ve API anahtarı yalnızca Rails'tedir (`OPENAI_API_KEY` Render ortam değişkeni). Tarayıcıya anahtar gitmez; frontend yalnızca JokerAI API'sini çağırır.
-- OpenAI Chat Completions ve **Structured Outputs** (`json_schema`, `strict`) kullanılır. Plan, görev çıktısı ve brif çıktıları şemaya uyar; geçersiz kullanıcı kimlikleri ve ileri yönlü bağımlılıklar sunucuda temizlenir.
-- Varsayılan model `gpt-4o-mini`'dir (`OPENAI_MODEL` ile değiştirilebilir).
+- LLM çağrıları ve API anahtarı yalnızca Rails'tedir 
 - Geliştirme ve testte anahtar yoksa deterministik bir çevrimdışı istemci kullanılır. Production'da anahtar yoksa çağrı hata verir; sahte çıktı üretilmez.
 - LLM kesintisinde ajan görevi "başarısız" durumuna geçer ve tekrar çalıştırılabilir. Sonraki adımın sorumlusu brif üretilemese de bilgilendirilir.
 
