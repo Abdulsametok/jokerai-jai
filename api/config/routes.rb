@@ -19,7 +19,20 @@ Rails.application.routes.draw do
     resources :tasks, only: %i[show update destroy] do
       post :move, on: :member
       resources :comments, only: :create
+      post :agent_run, to: "agent_runs#create"
     end
+
+    resources :goals, only: %i[index show create] do
+      post :accept, on: :member
+      post :replan, on: :member
+    end
+
+    resources :artifacts, only: [] do
+      post :approve, on: :member
+      post :reject, on: :member
+    end
+
+    get "ai/usage" => "ai_usage#show"
 
     get "my_tasks" => "my_tasks#index"
 
