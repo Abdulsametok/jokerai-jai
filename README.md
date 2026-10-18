@@ -31,12 +31,15 @@ Demo kullanıcıları: **Deniz Arslan** (operasyon müdürü, projelerde yöneti
 | 4 | Hedeften projeye (AI) | Hedef → plan → otomatik yürütme → insan onayı → sonraki adım (ayrıntı aşağıda) |
 
 ### 1. Proje ve görev yönetimi (liste görünümü)
+
 Proje oluştur, bölümlere (Yapılacak, Devam ediyor, İncelemede, Tamamlandı) görev ekle. Görevlere sorumlu, son tarih, öncelik, alt görev ve bağımlılık ver; satır içinden tamamla veya çekmecede düzenle. Proje ilerlemesi otomatik hesaplanır.
 
 ### 2. Kanban pano
+
 Aynı proje pano görünümünde açılır. Kartları sürükleyip bırakarak bölüm ve sıra değiştirilir; sıra sunucuda kalıcıdır. "Tamamlandı" sütununa taşımak görevi tamamlar, oradan çıkarmak yeniden açar.
 
 ### 3. İş birliği: yorum, @bahsetme, Görevlerim ve gelen kutusu
+
 Görev çekmecesinde yorum yazılır; `@` ile ekip arkadaşı seçilir ve bahsedilen kişiye bildirim gider. Her değişiklik aktivite akışına düşer. **Görevlerim** ekranı kişiye atanan işleri Gecikmiş, Bugün, Bu hafta, Daha sonra şeklinde gruplar. Gelen kutusu atama, bahsetme, yorum, tamamlama ve onay isteklerini toplar.
 
 ## AI-native katman: execution-first
@@ -62,11 +65,13 @@ Klasik iş yönetimi araçları işi listeler, yürütmeyi insana bırakır. Jok
 Kazanılan adım: **görevi yazma, ilk taslağı üretme ve devri takip etme** işleri insandan çıkar. Görevlerim ekranında en üstte "JokerAI işi bitirdi, sadece onayın gerekiyor" bölümü yer alır. Yöneticinin işi takip etmekten hazır çıktıyı kontrol etmeye dönüşür. Canlı ölçümde 7 görevli bir proje, plan dahil 94 saniyede yürütülüp onaya sunuldu (aşağıdaki metrik tablosu).
 
 ### AI teknik ayrıntıları
+
 - LLM çağrıları ve API anahtarı yalnızca Rails'tedir; tarayıcıya anahtar gitmez.
 - Geliştirme ve testte anahtar yoksa deterministik bir çevrimdışı istemci kullanılır. Production'da anahtar yoksa çağrı hata verir; sahte çıktı üretilmez.
 - LLM kesintisinde ajan görevi "başarısız" durumuna geçer ve tekrar çalıştırılabilir. Sonraki adımın sorumlusu brif üretilemese de bilgilendirilir.
 
 ### Demo akışı (yaklaşık 4 dakika)
+
 1. Deniz olarak gir. Görevlerim ekranında gecikmiş ve bugünkü işler görünür. Bir projeyi aç, liste ve pano arasında geç, bir kartı "Devam ediyor" sütununa sürükle.
 2. Bir görevde yorum yaz, `@` yazıp listeden Mert Kaya'yı seç. Mert'e geçince gelen kutusunda bildirim görünür.
 3. Deniz'e dön, "Hedef ver, ajan yürütsün" ekranında örnek bir hedef seç ve "Planı çıkar"a bas. Plan önizlemesinde bir görevin sorumlusunu değiştir ve onayla.
@@ -131,20 +136,20 @@ Render (API + Postgres, `render.yaml` Blueprint), Vercel (frontend), Cloudflare 
 
 Ayrıntılı oturum kaydı: [docs/METRICS.md](docs/METRICS.md).
 
-| Metrik | Değer |
-|--------|-------|
-| Toplam token maliyeti, geliştirme süreci ($) | **~$39,45** (Grok API liste değeri; Cursor aboneliği kapsamında kullanıldı) |
-| Toplam token, geliştirme süreci | 35.813.015 token (35,56M girdi / 249K çıktı) |
-| Toplam token maliyeti, canlı ürün içi AI ($) | **$0,004955** (2026-10-18 itibarıyla canlıdaki tüm ajan çağrıları, 12 çağrı) |
-| Toplam çalışma süresi (saat) | 2,9 saat |
-| Satır sayısı (LOC) | 5.532 (boş satırsız; API uygulama 1.709, API config 375, migration+seed 314, API test 287, web 2.847) |
-| Kullanılan model(ler) | Geliştirme: Cursor Auto (Grok). Ürün içi ajan: OpenAI gpt-4o-mini |
-| Coding agent(lar) | Cursor Agent |
-| Agent oturum sayısı | 2 |
+| Metrik                                       | Değer                                                                                                 |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Toplam token maliyeti, geliştirme süreci ($) | **~$39,45** (Grok API liste değeri; Cursor aboneliği kapsamında kullanıldı)                           |
+| Toplam token, geliştirme süreci              | 35.813.015 token (35,56M girdi / 249K çıktı)                                                          |
+| Toplam token maliyeti, canlı ürün içi AI ($) | **$0,004955** (itibarıyla canlıdaki tüm ajan çağrıları, 12 çağrı)                                     |
+| Toplam çalışma süresi (saat)                 | 2,9 saat                                                                                              |
+| Satır sayısı (LOC)                           | 5.532 (boş satırsız; API uygulama 1.709, API config 375, migration+seed 314, API test 287, web 2.847) |
+| Kullanılan model(ler)                        | Geliştirme: Cursor Auto (Grok). Ürün içi ajan: OpenAI gpt-4o-mini                                     |
+| Coding agent(lar)                            | Cursor Agent                                                                                          |
+| Agent oturum sayısı                          | 2                                                                                                     |
 
 ### Örnek canlı işleyiş maliyeti
 
-Canlı ortamda (https://jokerai.abdulsametok.com) bir hedef baştan sona yürütüldü ve maliyet `agent_runs` kaydından, işlem öncesi ve sonrası farkıyla ölçüldü (2026-10-18).
+Canlı ortamda (https://jokerai.abdulsametok.com) bir hedef baştan sona yürütüldü ve maliyet `agent_runs` kaydından, işlem öncesi ve sonrası farkıyla ölçüldü
 
 Hedef: *"Kurumsal müşterilere yeni iade sürecini duyuran bir lansman hazırla"*
 
@@ -157,9 +162,3 @@ Hedef: *"Kurumsal müşterilere yeni iade sürecini duyuran bir lansman hazırla
 | **Toplam** | **9** | **8.166 girdi / 4.516 çıktı token, $0,003935, 94 saniye, 7/7 görev tamamlandı** |
 
 Yani bir hedefin plandan teslime kadar yürütülmesi yaklaşık **0,4 sent** tutuyor. Aynı fiyatla 1 dolara yaklaşık 250 hedef yürütülebilir.
-
-## Bilinen sınırlamalar
-
-- Render ücretsiz katmanında servis 15 dakika boşta kalınca uyur; ilk istek yaklaşık 30-60 saniye sürebilir. Sunumdan önce bir uptime pinger ile `/api/health` çağrılır.
-- Render ücretsiz PostgreSQL 30 gün sonra silinir. Yeniden kurulum ve yedekten geri yükleme adımları [docs/DEPLOY.md](docs/DEPLOY.md) dosyasındadır.
-- Oturum cookie'si API alan adına yazılır. Bu yüzden giriş yalnızca özel alan adlarında çalışır, `*.vercel.app` önizleme adreslerinde çalışmaz.
