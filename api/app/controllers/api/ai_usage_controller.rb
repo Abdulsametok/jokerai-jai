@@ -31,8 +31,8 @@ module Api
         recent: runs.includes(:task, :goal).order(created_at: :desc).limit(15).map do |run|
           {
             id: run.id, kind: run.kind, model: run.model, status: run.status,
-            tokens_in: run.tokens_in, tokens_out: run.tokens_out, cost_usd: run.cost_usd.to_f,
-            duration_ms: run.duration_ms, task: run.task&.title, goal: run.goal&.title, created_at: run.created_at
+            tokens_in: run.tokens_in.to_i, tokens_out: run.tokens_out.to_i, cost_usd: run.cost_usd.to_f,
+            duration_ms: run.duration_ms.to_i, task: run.task&.title, goal: run.goal&.title, created_at: run.created_at
           }
         end
       }
