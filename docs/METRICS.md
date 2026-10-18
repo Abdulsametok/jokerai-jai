@@ -23,8 +23,10 @@ Demo öncesi toplam buraya kopyalanır.
 
 | Kalem | Değer |
 |-------|-------|
-| Render Postgres oluşturma tarihi | _deploy sonrası doldurulacak_ |
-| Render Postgres son kullanma tarihi | _oluşturma + 30 gün_ |
+| Render Postgres oluşturma tarihi | 2026-10-18 |
+| Render Postgres son kullanma tarihi | ~2026-11-17 (oluşturma + 30 gün); demo bundan sonraysa yeni DB + `demo:reset` |
+| İlk canlı deploy | 2026-10-18 04:57 (Gün 1) |
+| Canlı PingJob doğrulaması | 2026-10-18 05:00, 391 ms, Render içi Puma + Solid Queue |
 | Frontend URL | https://jokerai.abdulsametok.com |
 | API URL | https://api-jokerai.abdulsametok.com |
 
