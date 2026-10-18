@@ -1,17 +1,22 @@
-import { ApiStatus } from "./api-status";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
+import { Spinner } from "@/components/ui";
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    api("/me")
+      .then(() => router.replace("/my-tasks"))
+      .catch(() => router.replace("/login"));
+  }, [router]);
+
   return (
-    <main className="flex flex-1 items-center justify-center bg-[#121417] px-6 text-zinc-100">
-      <div className="w-full max-w-md space-y-6">
-        <div>
-          <div className="text-3xl font-semibold tracking-tight">
-            Joker<span className="text-lime-400">AI</span>
-          </div>
-          <p className="mt-2 text-zinc-400">Hedefi yaz, iş yürüsün. Sen sadece onayla.</p>
-        </div>
-        <ApiStatus />
-      </div>
+    <main className="flex flex-1 items-center justify-center">
+      <Spinner label="JokerAI açılıyor..." />
     </main>
   );
 }
