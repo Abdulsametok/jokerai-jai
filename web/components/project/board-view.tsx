@@ -4,16 +4,27 @@ import { useMemo, useState, type FormEvent } from "react";
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
-  closestCorners,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  pointerWithin,
+  rectIntersection,
   useDroppable,
   useSensor,
   useSensors,
+  type CollisionDetection,
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Bot, GitBranch, Plus } from "lucide-react";
 import { api } from "@/lib/api";
@@ -26,6 +37,7 @@ import { toggleTask } from "./list-view";
 type Columns = Record<string, number[]>;
 
 const colKey = (id: number) => `section-${id}`;
+const isColumn = (id: string | number) => String(id).startsWith("section-");
 
 function buildColumns(project: ProjectDetail): Columns {
   const columns: Columns = {};
@@ -50,7 +62,28 @@ export function BoardView({
   const [columns, setColumns] = useState<Columns>(() => buildColumns(project));
   const [activeId, setActiveId] = useState<number | null>(null);
   const tasksById = useMemo(() => new Map(project.tasks.map((t) => [t.id, t])), [project.tasks]);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  // Tall columns make corner-based detection pick neighbouring columns, so the
+  // column under the pointer wins, then the nearest card inside it.
+  const collisionDetection: CollisionDetection = (args) => {
+    const pointerHits = pointerWithin(args);
+    const hits = pointerHits.length > 0 ? pointerHits : rectIntersection(args);
+    const card = hits.find((hit) => !isColumn(hit.id));
+    if (card) return [card];
+    const column = hits.find((hit) => isColumn(hit.id));
+    if (!column) return closestCenter(args);
+    const ids = columns[String(column.id)] ?? [];
+    const inner = closestCenter({
+      ...args,
+      droppableContainers: args.droppableContainers.filter((c) => ids.includes(Number(c.id))),
+    });
+    return inner.length > 0 ? [inner[0]] : [column];
+  };
 
   const [syncedProject, setSyncedProject] = useState(project);
   if (activeId === null && syncedProject !== project) {
@@ -59,7 +92,7 @@ export function BoardView({
   }
 
   const findColumn = (id: string | number): string | undefined => {
-    if (typeof id === "string" && id.startsWith("section-")) return id;
+    if (isColumn(id)) return String(id);
     return Object.keys(columns).find((key) => columns[key].includes(Number(id)));
   };
 
@@ -118,7 +151,7 @@ export function BoardView({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetection}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
