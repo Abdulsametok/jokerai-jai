@@ -1,0 +1,28 @@
+# PostgreSQL everywhere. Development and test default to the local Docker
+# container (docker run ... -p 5433:5432 postgres:17-alpine, user/pass: jokerai).
+# Production uses a single database from DATABASE_URL (Render); Solid Queue
+# tables live in the same database as the app tables.
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i + 5 %>
+
+development:
+  <<: *default
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
+  port: <%= ENV.fetch("DB_PORT", 5433) %>
+  username: <%= ENV.fetch("DB_USERNAME", "jokerai") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "jokerai") %>
+  database: jokerai_development
+
+test:
+  <<: *default
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
+  port: <%= ENV.fetch("DB_PORT", 5433) %>
+  username: <%= ENV.fetch("DB_USERNAME", "jokerai") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "jokerai") %>
+  database: jokerai_test
+
+production:
+  <<: *default
+  url: <%= ENV["DATABASE_URL"] %>
