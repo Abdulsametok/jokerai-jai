@@ -41,7 +41,7 @@ Klasik iş yönetimi araçları işi listeler, yürütmeyi insana bırakır. Jok
 3. **Ajan hemen yürütür.** Bağımlılığı karşılanmış ajan görevleri arka planda (Solid Queue) çalışır. Ajan bitmiş bir iş teslim eder (analiz raporu, uygulama planı, paydaş duyurusu, entegrasyon spesifikasyonu, kontrol listesi), görevi "İncelemede"ye taşır ve proje yöneticilerine onay isteği gönderir.
 4. **Onay veya geri bildirimle ret.** Yönetici çıktıyı okur. Onaylarsa görev tamamlanır. Reddederse yazdığı geri bildirimle ajan yeni bir sürüm üretir; sürüm geçmişi saklanır.
 5. **Sonraki adım pası.** Bir görev tamamlandığında ona bağlı sonraki adım hazır hale gelir. Sonraki görev ajan göreviyse ajan onu kendiliğinden başlatır ve önceki onaylı çıktıları bağlam olarak kullanır. İnsan göreviyse ajan sorumluya başlangıç brifi yazar ve bildirim gönderir.
-6. **Maliyet ve etki paneli.** Her LLM çağrısı token, maliyet ve süre ile `agent_runs` tablosuna yazılır. "AI maliyeti" ekranı toplam maliyeti, onaylı çıktı başına maliyeti ve tahmini kazanılan insan saatini gösterir.
+6. **Maliyet paneli.** Her LLM çağrısı token, maliyet ve süre ile sunucuda `agent_runs` tablosuna yazılır. Arayüzdeki "AI maliyeti" ekranı yalnızca maliyeti gösterir: toplam maliyet, onaylanan çıktı başına maliyet, iş türüne göre maliyet ve son işlemler. Model adı ve token ayrıntısı arayüze çıkmaz.
 
 **İş akışını nasıl değiştiriyor:** Görevlerim ekranında en üstte "JokerAI işi bitirdi, sadece onayın gerekiyor" bölümü yer alır. Yöneticinin işi görev yazmak ve takip etmek yerine hazır çıktıyı kontrol etmeye dönüşür.
 
@@ -57,7 +57,7 @@ Klasik iş yönetimi araçları işi listeler, yürütmeyi insana bırakır. Jok
 2. Bir görevde yorum yaz, `@` yazıp listeden Mert Kaya'yı seç. Mert'e geçince gelen kutusunda bildirim görünür.
 3. Deniz'e dön, "Hedef ver, ajan yürütsün" ekranında örnek bir hedef seç ve "Planı çıkar"a bas. Plan önizlemesinde bir görevin sorumlusunu değiştir ve onayla.
 4. Projede ilk ajan görevi "İncelemede"ye gelir. Çıktıyı geri bildirimle reddet; v2 gelir. Onayla; görev tamamlanır ve sıradaki ajan görevi kendiliğinden başlar.
-5. "AI maliyeti" ekranında çağrı başına token, maliyet ve süreyi göster.
+5. "AI maliyeti" ekranında toplam maliyeti ve onaylanan çıktı başına maliyeti göster.
 
 ## Mimari
 
